@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Cloneable.Sample
 {
@@ -77,6 +79,22 @@ namespace Cloneable.Sample
             Console.WriteLine(clone);
             Console.WriteLine("Clone equals original: " + (clone == parent));
             Console.WriteLine("Is parents child copied: " + (clone.Child != parent.Child));
+            Console.WriteLine();
+        }
+
+        static void DoListClone()
+        {
+            // Uses the Clone method on a class with no circular references
+            var list = new List<int>() { 0, 1, 2, 3, 4, 5 };
+            var listClone = new ListClone()
+            {
+                A = "child",
+                B = list.ToList()
+            };
+            var clone = listClone.CloneSafe();
+            Console.WriteLine(clone);
+            Console.WriteLine("Clone equals original: " + (clone == listClone));
+            Console.WriteLine("List equals original: " + (clone.B == listClone.B));
             Console.WriteLine();
         }
     }

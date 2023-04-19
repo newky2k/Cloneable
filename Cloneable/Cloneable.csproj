@@ -7,6 +7,8 @@
 		<Nullable>enable</Nullable>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<RepositoryUrl>https://github.com/mostmand/Cloneable</RepositoryUrl>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<IsRoslynComponent>true</IsRoslynComponent>
 	</PropertyGroup>
 
 	<ItemGroup>

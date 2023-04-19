@@ -66,6 +66,7 @@ namespace " + CloneableNamespace + @"
 }
 ";
 
+        //TODO: Add CustomCloneAttribute?
         private INamedTypeSymbol? cloneableAttribute;
         private INamedTypeSymbol? ignoreCloneAttribute;
         private INamedTypeSymbol? cloneAttribute;
@@ -90,7 +91,7 @@ namespace " + CloneableNamespace + @"
 
             InitAttributes(compilation);
 
-            var classSymbols = GetClassSymbols(compilation, receiver);
+            var classSymbols = GetClassSymbols(compilation, receiver).ToList();
             foreach (var classSymbol in classSymbols)
             {
                 if (!classSymbol.TryGetAttribute(cloneableAttribute!, out var attributes))
@@ -98,7 +99,8 @@ namespace " + CloneableNamespace + @"
 
                 var attribute = attributes.Single();
                 var isExplicit = (bool?)attribute.NamedArguments.FirstOrDefault(e => e.Key.Equals(ExplicitDeclarationKeyString)).Value.Value ?? false;
-                context.AddSource($"{classSymbol.Name}_cloneable.cs", SourceText.From(CreateCloneableCode(classSymbol, isExplicit), Encoding.UTF8));
+                var hasDuplicateName = classSymbols.Any(x => !SymbolEqualityComparer.Default.Equals(x, classSymbol) && x.Name == classSymbol.Name); //Fix issue where two classes have the same name
+                context.AddSource($"{(hasDuplicateName ? $"{classSymbol.ContainingNamespace}." : null)}{classSymbol.Name}_cloneable.cs", SourceText.From(CreateCloneableCode(classSymbol, isExplicit), Encoding.UTF8));
             }
         }
 
@@ -125,19 +127,23 @@ namespace " + CloneableNamespace + @"
             var fieldAssignmentsCode = GenerateFieldAssignmentsCode(classSymbol, isExplicit);
             var fieldAssignmentsCodeSafe = fieldAssignmentsCode.Select(x =>
             {
+                if (x.isEnumerable)
+                    return x.line.Replace("#CLONE#", "CloneSafe(referenceChain)");
                 if (x.isCloneable)
                     return x.line + "Safe(referenceChain)";
                 return x.line;
             });
             var fieldAssignmentsCodeFast = fieldAssignmentsCode.Select(x =>
             {
+                if (x.isEnumerable)
+                    return x.line.Replace("#CLONE#", "Clone()");
                 if (x.isCloneable)
                     return x.line + "()";
                 return x.line;
             });
 
             return $@"using System.Collections.Generic;
-
+using System.Linq;
 namespace {namespaceName}
 {{
     {GetAccessModifier(classSymbol)} partial class {classSymbol.Name}
@@ -147,9 +153,9 @@ namespace {namespaceName}
         /// 
         /// <exception cref=""StackOverflowException"">Will occur on any object that has circular references in the hierarchy.</exception>
         /// </summary>
-        public {classSymbol.Name} Clone()
+        public {classSymbol.ToFQF()} Clone()
         {{
-            return new {classSymbol.Name}
+            return new {classSymbol.ToFQF()}
             {{
 {string.Join($",{Environment.NewLine}", fieldAssignmentsCodeFast)}
             }};
@@ -159,13 +165,13 @@ namespace {namespaceName}
         /// Creates a copy of {classSymbol.Name} with circular reference checking. If a circular reference was detected, only a reference of the leaf object is passed instead of cloning it.
         /// </summary>
         /// <param name=""referenceChain"">Should only be provided if specific objects should not be cloned but passed by reference instead.</param>
-        public {classSymbol.Name} CloneSafe(Stack<object> referenceChain = null)
+        public {classSymbol.ToFQF()} CloneSafe(Stack<object> referenceChain = null)
         {{
             if(referenceChain?.Contains(this) == true) 
                 return this;
             referenceChain ??= new Stack<object>();
             referenceChain.Push(this);
-            var result = new {classSymbol.Name}
+            var result = new {classSymbol.ToFQF()}
             {{
 {string.Join($",{Environment.NewLine}", fieldAssignmentsCodeSafe)}
             }};
@@ -176,40 +182,96 @@ namespace {namespaceName}
 }}";
         }
 
-        private IEnumerable<(string line, bool isCloneable)> GenerateFieldAssignmentsCode(INamedTypeSymbol classSymbol, bool isExplicit )
+        private IEnumerable<(string line, bool isCloneable, bool isEnumerable)> GenerateFieldAssignmentsCode(INamedTypeSymbol classSymbol, bool isExplicit )
         {
             var fieldNames = GetCloneableProperties(classSymbol, isExplicit);
 
             var fieldAssignments = fieldNames.Select(field => IsFieldCloneable(field, classSymbol)).
                 OrderBy(x => x.isCloneable).
-                Select(x => (GenerateAssignmentCode(x.item.Name, x.isCloneable), x.isCloneable));
+                Select(x => (GenerateAssignmentCode(x.item, x.isCloneable, x.isEnumerable), x.isCloneable, x.isEnumerable));
             return fieldAssignments;
         }
 
-        private string GenerateAssignmentCode(string name, bool isCloneable)
+        private string GenerateAssignmentCode(IPropertySymbol symbol, bool isCloneable, bool isEnumerable)
         {
+            var name = symbol.Name;
+            if (isEnumerable)
+            {
+                return $@"                {name} = {GenerateEnumerableConversionCode($"this.{name}", symbol.Type)}";
+            }
             if (isCloneable)
             {
-                return $@"                {name} = this.{name}?.Clone";
+                return $@"                {name} = this.{name}{(symbol.NullableAnnotation == NullableAnnotation.Annotated ? "?" : "")}.Clone";
             }
 
             return $@"                {name} = this.{name}";
         }
 
-        private (IPropertySymbol item, bool isCloneable) IsFieldCloneable(IPropertySymbol x, INamedTypeSymbol classSymbol)
+        private string GenerateEnumerableConversionCode(string name, ITypeSymbol type, int depth = 1)
+        {
+            var arguments = type.GetIDictionaryTypeArguments() ?? type.GetIEnumerableTypeArguments();
+            if (arguments == null) return name;
+            var argumentName = new string('x', depth);
+            if (type is IArrayTypeSymbol arraySymbol)
+            {
+                return $"{name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)}).ToArray()";
+            }
+
+            if (arguments.Value.Any(x => !x.IsValueType))
+            {
+                //TODO: Use interfaces, IList, IDictionary
+                //TODO: FQF names
+                //TODO: Dont fallback to IEnumerable since that will cause issues
+                //TODO: Support all commonly used collections https://learn.microsoft.com/en-us/dotnet/standard/collections/commonly-used-collection-types
+                return type.Name switch
+                {
+                    "List" => $"{name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)}).ToList()",
+                    "Dictionary" => $"{name}.ToDictionary({argumentName} => {GenerateEnumerableTypeCloneCode($"{argumentName}.Key", arguments.Value[0], depth)}, {argumentName} => {GenerateEnumerableTypeCloneCode($"{argumentName}.Value", arguments.Value[1], depth)})",
+                    _ => $"{name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)})",
+                };
+            }
+            return type.Name switch
+            {
+                "List" => $"new {type.ToNullableFQF()}({name})",
+                "Dictionary" => $"new {type.ToNullableFQF()}({name})",
+                _ => $"{name}.Select({argumentName} => {argumentName})",
+            };
+        }
+
+        private string GenerateEnumerableTypeCloneCode(string name, ITypeSymbol type, int depth)
+        {
+            if (type.IsPossibleEnumerable()) //If it is a nested enumerable, repeat the process
+            {
+                return GenerateEnumerableConversionCode(name, type, depth + 1);
+            }
+            if (!type.TryGetAttribute(cloneableAttribute!, out var attributes))
+            {
+                return name;
+            }
+            var preventDeepCopy = (bool?)attributes.Single().NamedArguments.FirstOrDefault(e => e.Key.Equals(PreventDeepCopyKeyString)).Value.Value ?? false;
+            if (preventDeepCopy) return name;
+            return $"{name}.#CLONE#";
+        }
+
+        private (IPropertySymbol item, bool isCloneable, bool isEnumerable) IsFieldCloneable(IPropertySymbol x, INamedTypeSymbol classSymbol)
         {
             if (SymbolEqualityComparer.Default.Equals(x.Type, classSymbol))
             {
-                return (x, false);
+                return (x, false, false);
+            }
+
+            if (x.Type.IsPossibleEnumerable())
+            {
+                return (x, false, true);
             }
 
             if (!x.Type.TryGetAttribute(cloneableAttribute!, out var attributes))
             {
-                return (x, false);
+                return (x, false, false);
             }
 
             var preventDeepCopy = (bool?)attributes.Single().NamedArguments.FirstOrDefault(e => e.Key.Equals(PreventDeepCopyKeyString)).Value.Value ?? false;
-            return (item: x, !preventDeepCopy);
+            return (item: x, !preventDeepCopy, false);
         }
 
         private string GetAccessModifier(INamedTypeSymbol classSymbol)
@@ -234,13 +296,13 @@ namespace {namespaceName}
 
         private static IEnumerable<INamedTypeSymbol> GetClassSymbols(Compilation compilation, SyntaxReceiver receiver)
         {
-            return receiver.CandidateClasses.Select(clazz => GetClassSymbol(compilation, clazz));
+            return receiver.CandidateClasses.Select(@class => GetClassSymbol(compilation, @class));
         }
 
-        private static INamedTypeSymbol GetClassSymbol(Compilation compilation, ClassDeclarationSyntax clazz)
+        private static INamedTypeSymbol GetClassSymbol(Compilation compilation, ClassDeclarationSyntax @class)
         {
-            var model = compilation.GetSemanticModel(clazz.SyntaxTree);
-            var classSymbol = model.GetDeclaredSymbol(clazz)!;
+            var model = compilation.GetSemanticModel(@class.SyntaxTree);
+            var classSymbol = model.GetDeclaredSymbol(@class)!;
             return classSymbol;
         }
 

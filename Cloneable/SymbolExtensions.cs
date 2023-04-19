@@ -1,6 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cloneable
 {
@@ -16,6 +18,47 @@ namespace Cloneable
         public static bool HasAttribute(this ISymbol symbol, INamedTypeSymbol attributeType)
         {
             return symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public static string ToNullableFQF(this ISymbol symbol) =>
+            symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithMiscellaneousOptions(
+                    SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier
+                )
+            );
+
+        // ReSharper disable once InconsistentNaming
+        public static string ToFQF(this ISymbol symbol) =>
+            symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+        public static AttributeData? GetAttribute(this ISymbol symbol, INamedTypeSymbol attribute)
+        {
+            return symbol
+                .GetAttributes()
+                .FirstOrDefault(x => x.AttributeClass?.Equals(attribute, SymbolEqualityComparer.Default) == true);
+        }
+
+        public static INamedTypeSymbol? GetInterface(this ITypeSymbol symbol, string interfaceFqn)
+        {
+            return symbol.AllInterfaces
+                .FirstOrDefault(x => x.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == interfaceFqn);
+        }
+
+        public static ImmutableArray<ITypeSymbol>? GetIEnumerableTypeArguments(this ITypeSymbol symbol)
+        {
+            if (symbol.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Collections.Generic.IEnumerable<T>") 
+                return ((INamedTypeSymbol)symbol).TypeArguments;
+            return symbol.GetInterface("global::System.Collections.Generic.IEnumerable<T>")?.TypeArguments;
+        }
+
+        public static ImmutableArray<ITypeSymbol>? GetIDictionaryTypeArguments(this ITypeSymbol symbol)
+        {
+            return symbol.GetInterface("global::System.Collections.Generic.IDictionary<TKey, TValue>")?.TypeArguments;
+        }
+
+        public static bool IsPossibleEnumerable(this ITypeSymbol symbol)
+        {
+            return !symbol.IsValueType && symbol.Name != "String" && (symbol.GetIEnumerableTypeArguments() != null || symbol.GetIDictionaryTypeArguments() != null);
         }
     }
 }
