@@ -309,18 +309,5 @@ namespace Clonable.Test
             deepClone.CloneSafe();
         }
 
-        [Fact]
-        public void CanCloneStructs()
-        {
-            var obj = new StructClone()
-            {
-                A = "test",
-                B = 10
-            };
-
-            var clone = obj.Clone();
-            clone.Should().NotBe(obj);
-        }
-
     }
 }

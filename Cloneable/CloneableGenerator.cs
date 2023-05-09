@@ -3,6 +3,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -216,26 +218,56 @@ namespace {namespaceName}
             {
                 return $"{name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)}).ToArray()";
             }
-
+            var typeAsEnumerable = $"global::System.Collections.Generic.IEnumerable<{arguments.Value.First().ToFQF()}>";
+            var argumentsAsKeyValuePair = $"global::System.Collections.Generic.KeyValuePair<{arguments.Value[0].ToFQF()}, {arguments.Value.ElementAtOrDefault(1)?.ToFQF()}>";
+            var typeAsKeyValuePair = $"global::System.Collections.Generic.IEnumerable<{argumentsAsKeyValuePair}>";
+            var isConstructableWithSelf = ((INamedTypeSymbol)type).Constructors.Any(constructors =>
+                constructors.Parameters.Any(param => param.Type.ToFQF() == type.ToKnownInterfaceFQF())
+            );
+            var isConstructableWithEnumerable = ((INamedTypeSymbol)type).Constructors.Any(constructors => 
+                constructors.Parameters.Any(param => param.Type.ToFQF() == typeAsEnumerable)
+            );
+            var isConstructableWithKeyValuePair = ((INamedTypeSymbol)type).Constructors.Any(constructors =>
+                constructors.Parameters.Any(param => param.Type.ToFQF() == typeAsKeyValuePair)
+            );
+            var test = ((INamedTypeSymbol)type).Constructors.SelectMany(constructors =>
+                constructors.Parameters.Select(param => param.Type.ToFQF())
+            );
             if (arguments.Value.Any(x => !x.IsValueType))
             {
-                //TODO: Use interfaces, IList, IDictionary
-                //TODO: FQF names
-                //TODO: Dont fallback to IEnumerable since that will cause issues
-                //TODO: Support all commonly used collections https://learn.microsoft.com/en-us/dotnet/standard/collections/commonly-used-collection-types
-                return type.Name switch
+                //Note: Should support "most" of the commonly used collections https://learn.microsoft.com/en-us/dotnet/standard/collections/commonly-used-collection-types
+                //Does not really support: Hashtable (Depricated), ArrayList (Depricated), SortedList (Does currently only support value types. 
+                if (isConstructableWithEnumerable)
                 {
-                    "List" => $"{name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)}).ToList()",
-                    "Dictionary" => $"{name}.ToDictionary({argumentName} => {GenerateEnumerableTypeCloneCode($"{argumentName}.Key", arguments.Value[0], depth)}, {argumentName} => {GenerateEnumerableTypeCloneCode($"{argumentName}.Value", arguments.Value[1], depth)})",
-                    _ => $"{name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)})",
-                };
+                    return $"new {type.ToNullableFQF()}({name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)}))";
+                }
+                else if (isConstructableWithKeyValuePair)
+                {
+                    return $"new {type.ToNullableFQF()}({name}.Select({argumentName} => new {argumentsAsKeyValuePair}({GenerateEnumerableTypeCloneCode($"{argumentName}.Key", arguments.Value[0], depth)}, {GenerateEnumerableTypeCloneCode($"{argumentName}.Value", arguments.Value[1], depth)})))";
+                }
+                else if (type.ToFQF() == typeAsEnumerable)
+                {
+                    return $"{name}.Select({argumentName} => {GenerateEnumerableTypeCloneCode(argumentName, arguments.Value[0], depth)})";
+                }
+                return name;
             }
-            return type.Name switch
+            if (isConstructableWithSelf)
             {
-                "List" => $"new {type.ToNullableFQF()}({name})",
-                "Dictionary" => $"new {type.ToNullableFQF()}({name})",
-                _ => $"{name}.Select({argumentName} => {argumentName})",
-            };
+                return $"new {type.ToNullableFQF()}({name})";
+            }
+            else if (isConstructableWithEnumerable)
+            {
+                return $"new {type.ToNullableFQF()}({name}.Select({argumentName} => {argumentName}))";
+            }
+            else if (isConstructableWithKeyValuePair)
+            {
+                return $"new {type.ToNullableFQF()}({name}.Select({argumentName} => new {argumentsAsKeyValuePair}({argumentName}.Key, {argumentName}.Value)))";
+            }
+            else if (type.ToFQF() == typeAsEnumerable)
+            {
+                return $"{name}.Select({argumentName} => {argumentName})";
+            }
+            return name;
         }
 
         private string GenerateEnumerableTypeCloneCode(string name, ITypeSymbol type, int depth)

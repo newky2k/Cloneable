@@ -30,6 +30,16 @@ namespace Cloneable
         // ReSharper disable once InconsistentNaming
         public static string ToFQF(this ISymbol symbol) =>
             symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        
+        // ReSharper disable once InconsistentNaming
+        public static string ToKnownInterfaceFQF(this ITypeSymbol symbol)
+        {
+            var iDictInterface = symbol.GetInterface("global::System.Collections.Generic.IDictionary<TKey, TValue>");
+            var iListInterface = symbol.GetInterface("global::System.Collections.Generic.IList<T>");
+            if (iDictInterface != null) return iDictInterface.ToFQF();
+            else if (iListInterface != null) return iListInterface.ToFQF();
+            return symbol.ToFQF();
+        }
 
         public static AttributeData? GetAttribute(this ISymbol symbol, INamedTypeSymbol attribute)
         {

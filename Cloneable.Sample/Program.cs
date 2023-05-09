@@ -13,6 +13,7 @@ namespace Cloneable.Sample
             DoSimpleExplicitClone();
             DoDeepClone();
             DoSafeDeepClone();
+            DoListClone();
         }
 
         static void DoSimpleClone()
