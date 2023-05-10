@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Authors>MH Mostmand</Authors>
-    		<Description>Auto-generator of Clone method using C# Source Generator</Description>
+		<Authors>Nicholas Brostrom</Authors>
+		<Description>Auto-generator of Clone method using C# Source Generator</Description>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<RepositoryUrl>https://github.com/mostmand/Cloneable</RepositoryUrl>
+		<RepositoryUrl>https://github.com/Nickztar/Cloneable</RepositoryUrl>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 		<IsRoslynComponent>true</IsRoslynComponent>
 	</PropertyGroup>
