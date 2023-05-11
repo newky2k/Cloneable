@@ -9,6 +9,12 @@
 		<RepositoryUrl>https://github.com/Nickztar/Cloneable</RepositoryUrl>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 		<IsRoslynComponent>true</IsRoslynComponent>
+		<Version>2.0.0</Version>
+		<PackageProjectUrl>https://github.com/Nickztar/Cloneable</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenceUrl>https://github.com/Nickztar/Cloneable/blob/master/LICENCE</PackageLicenceUrl>
+		<RepositoryType>git</RepositoryType>
+		<IsPackable>true</IsPackable>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -19,5 +25,8 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.0" PrivateAssets="all" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="../README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>
