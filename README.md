@@ -27,6 +27,9 @@ Source generators are introduced in dotnet 5.0. So make sure to have Visual Stud
 Here is a simple example:
 
 ```csharp
+
+using LoDaTek.Cloneable.Core;
+
 [Cloneable]
 public partial class Foo
 {

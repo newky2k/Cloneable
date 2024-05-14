@@ -6,11 +6,11 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
-		<RepositoryUrl>https://github.com/Nickztar/Cloneable</RepositoryUrl>
+		<RepositoryUrl>https://github.com/newky2k/Cloneable</RepositoryUrl>
 		<Version>2.0.0</Version>
-		<PackageProjectUrl>https://github.com/Nickztar/Cloneable</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/newky2k/Cloneable</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageLicenceUrl>https://github.com/Nickztar/Cloneable/blob/master/LICENCE</PackageLicenceUrl>
+		<PackageLicenceUrl>https://github.com/newky2k/Cloneable/blob/master/LICENCE</PackageLicenceUrl>
 		<RepositoryType>git</RepositoryType>
 		<IsPackable>true</IsPackable>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
