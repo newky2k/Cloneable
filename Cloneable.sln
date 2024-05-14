@@ -3,11 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloneable", "Cloneable\Cloneable.csproj", "{8239F685-5966-47A9-BDBB-1762F6268A10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoDaTek.Cloneable", "Cloneable\LoDaTek.Cloneable.csproj", "{8239F685-5966-47A9-BDBB-1762F6268A10}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloneable.Sample", "Cloneable.Sample\Cloneable.Sample.csproj", "{D4425270-3428-4B0D-A084-2747C9E571F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clonable.Test", "Clonable.Test\Clonable.Test.csproj", "{C7F18179-5889-476D-8AF1-CF2FE2D11DDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Clonable.Test", "Clonable.Test\Clonable.Test.csproj", "{C7F18179-5889-476D-8AF1-CF2FE2D11DDA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoDaTek.Cloneable.Core", "LoDaTek.Cloneable.Core\LoDaTek.Cloneable.Core.csproj", "{C2D8133F-3058-4EE1-B742-BC1724691098}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".ci", ".ci", "{B00C08D9-8E8F-49E8-8D00-27E2397AB4A8}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		LICENCE = LICENCE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +64,18 @@ Global
 		{C7F18179-5889-476D-8AF1-CF2FE2D11DDA}.Release|x64.Build.0 = Release|Any CPU
 		{C7F18179-5889-476D-8AF1-CF2FE2D11DDA}.Release|x86.ActiveCfg = Release|Any CPU
 		{C7F18179-5889-476D-8AF1-CF2FE2D11DDA}.Release|x86.Build.0 = Release|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Debug|x64.Build.0 = Debug|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Debug|x86.Build.0 = Debug|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Release|x64.ActiveCfg = Release|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Release|x64.Build.0 = Release|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Release|x86.ActiveCfg = Release|Any CPU
+		{C2D8133F-3058-4EE1-B742-BC1724691098}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

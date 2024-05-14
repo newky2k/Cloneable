@@ -1,6 +1,6 @@
 # Cloneable
 
-This is a fork of https://github.com/mostmand/Cloneable - Which doesn't seem to be maintained...
+This is a fork of https://github.com/Nickztar/Cloneable which is a fork of https://github.com/mostmand/Cloneable - Which doesn't seem to be maintained...
 
 Auto generate Clone method using C# Source Generator
 
@@ -10,11 +10,11 @@ This source generator saves your time by generating the boilerplate code for clo
 ### Installing Cloneable
 You should install [Cloneable with NuGet](https://www.nuget.org/packages/Cloneable.Generator):
 
-    Install-Package Cloneable.Generator
+    Install-Package LoDaTek.Cloneable
     
 Or via the .NET Core command line interface:
 
-    dotnet add package Cloneable.Generator
+    dotnet add package LoDaTek.Cloneable
 
 Either commands, from Package Manager Console or .NET Core CLI, will download and install Cloneable and all required dependencies.
 

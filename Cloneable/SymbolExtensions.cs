@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Cloneable
+namespace LoDaTek.Cloneable
 {
     internal static class SymbolExtensions
     {

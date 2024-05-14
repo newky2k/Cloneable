@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Cloneable
+namespace LoDaTek.Cloneable
 {
     [Generator]
     public class CloneableGenerator : ISourceGenerator
@@ -17,56 +17,10 @@ namespace Cloneable
         private const string PreventDeepCopyKeyString = "PreventDeepCopy";
         private const string ExplicitDeclarationKeyString = "ExplicitDeclaration";
 
-        private const string CloneableNamespace = "Cloneable";
+        private const string CloneableNamespace = "LoDaTek.Cloneable.Core";
         private const string CloneableAttributeString = "CloneableAttribute";
         private const string CloneAttributeString = "CloneAttribute";
         private const string IgnoreCloneAttributeString = "IgnoreCloneAttribute";
-
-        private const string cloneableAttributeText = @"using System;
-
-namespace " + CloneableNamespace + @"
-{
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = true, AllowMultiple = false)]
-    public sealed class " + CloneableAttributeString + @" : Attribute
-    {
-        public " + CloneableAttributeString + @"()
-        {
-        }
-
-        public bool " + ExplicitDeclarationKeyString + @" { get; set; }
-    }
-}
-";
-
-        private const string clonePropertyAttributeText = @"using System;
-
-namespace " + CloneableNamespace + @"
-{
-    [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
-    public sealed class " + CloneAttributeString + @" : Attribute
-    {
-        public " + CloneAttributeString + @"()
-        {
-        }
-
-        public bool " + PreventDeepCopyKeyString + @" { get; set; }
-    }
-}
-";
-
-        private const string ignoreClonePropertyAttributeText = @"using System;
-
-namespace " + CloneableNamespace + @"
-{
-    [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
-    public sealed class " + IgnoreCloneAttributeString + @" : Attribute
-    {
-        public " + IgnoreCloneAttributeString + @"()
-        {
-        }
-    }
-}
-";
 
         //TODO: Add CustomCloneAttribute?
         private INamedTypeSymbol? cloneableAttribute;
@@ -80,7 +34,6 @@ namespace " + CloneableNamespace + @"
 
         public void Execute(GeneratorExecutionContext context)
         {
-            InjectCloneableAttributes(context);
             GenerateCloneMethods(context);
         }
 
@@ -115,12 +68,7 @@ namespace " + CloneableNamespace + @"
 
         private static Compilation GetCompilation(GeneratorExecutionContext context)
         {
-            var options = context.Compilation.SyntaxTrees.First().Options as CSharpParseOptions;
-
-            var compilation = context.Compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(SourceText.From(cloneableAttributeText, Encoding.UTF8), options)).
-                AddSyntaxTrees(CSharpSyntaxTree.ParseText(SourceText.From(clonePropertyAttributeText, Encoding.UTF8), options)).
-                AddSyntaxTrees(CSharpSyntaxTree.ParseText(SourceText.From(ignoreClonePropertyAttributeText, Encoding.UTF8), options));
-            return compilation;
+            return context.Compilation;
         }
 
         private string CreateCloneableCode(INamedTypeSymbol classSymbol, bool isExplicit)
@@ -335,11 +283,5 @@ namespace {namespaceName}
             return classSymbol;
         }
 
-        private static void InjectCloneableAttributes(GeneratorExecutionContext context)
-        {
-            context.AddSource(CloneableAttributeString, SourceText.From(cloneableAttributeText, Encoding.UTF8));
-            context.AddSource(CloneAttributeString, SourceText.From(clonePropertyAttributeText, Encoding.UTF8));
-            context.AddSource(IgnoreCloneAttributeString, SourceText.From(ignoreClonePropertyAttributeText, Encoding.UTF8));
-        }
     }
 }
