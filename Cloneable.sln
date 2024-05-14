@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoDaTek.Cloneable.Core", "L
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".ci", ".ci", "{B00C08D9-8E8F-49E8-8D00-27E2397AB4A8}"
 	ProjectSection(SolutionItems) = preProject
+		azure-pipelines-mergetest.yml = azure-pipelines-mergetest.yml
+		azure-pipelines-release.yml = azure-pipelines-release.yml
 		Directory.Build.props = Directory.Build.props
 		LICENCE = LICENCE
 		README.md = README.md
@@ -79,5 +81,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {15B791A9-A3E7-4DA8-8093-838AF61170E2}
 	EndGlobalSection
 EndGlobal
