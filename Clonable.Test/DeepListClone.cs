@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using LoDaTek.Cloneable.Core;
+
 namespace Cloneable.Sample
 {
     [Cloneable]

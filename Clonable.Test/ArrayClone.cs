@@ -1,4 +1,6 @@
-﻿namespace Cloneable.Sample
+﻿using LoDaTek.Cloneable.Core;
+
+namespace Cloneable.Sample
 {
     [Cloneable]
     public partial class ArrayClone

@@ -1,4 +1,5 @@
 ﻿using Cloneable;
+using LoDaTek.Cloneable.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

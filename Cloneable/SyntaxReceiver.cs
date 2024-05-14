@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Created on demand before each generation pass
 /// </summary>
-namespace Cloneable
+namespace LoDaTek.Cloneable
 {
     internal class SyntaxReceiver : ISyntaxReceiver
     {

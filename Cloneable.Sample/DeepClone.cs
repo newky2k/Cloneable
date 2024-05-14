@@ -1,3 +1,4 @@
+using LoDaTek.Cloneable.Core;
 using System;
 
 namespace Cloneable.Sample
