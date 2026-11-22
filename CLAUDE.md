@@ -22,7 +22,7 @@ dotnet test Clonable.Test/Clonable.Test.csproj -c Release
 - The generator and the Core library stay `netstandard2.0`: an analyzer must target `netstandard2.0` to load in every compiler, and the attributes work for every consumer from .NET Framework to .NET 11. The tests and sample build with the generator on .NET 10 and .NET 11 to prove it works with those compilers. Build with the .NET 10 and .NET 11 SDKs (`global.json` rolls forward to the latest major).
 - `Microsoft.CodeAnalysis.CSharp.Workspaces` is deliberately kept at 3.8.0 so the generator keeps loading in older compilers.
 - `GeneratePackageOnBuild=true` on both packages, so every build produces `.nupkg` files (with `README.md` and `DSIcon.png`). Release builds add SourceLink.
-- Known issue: `Cloneable.Sample` throws an `ArgumentNullException` in `ListClone.CloneSafe` because the generated code calls `Select` on null list properties (`Self`, `NullableList`). It is a generator limitation, not a framework issue; the xunit tests do not hit it.
+- Null collection properties (lists, arrays, dictionaries, enumerables, including nested ones) are cloned as `null`: the generated code is wrapped in `(x == null ? null : ...)`. `NullCollectionClone` in `Clonable.Test` covers it. A null property whose type is itself `[Cloneable]` and not annotated nullable still throws `NullReferenceException` on purpose (`ThrowsOnNonNullable`).
 
 ## Branching
 

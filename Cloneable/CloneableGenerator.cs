@@ -159,6 +159,17 @@ namespace {namespaceName}
 
         private string GenerateEnumerableConversionCode(string name, ITypeSymbol type, int depth = 1)
         {
+            var code = GenerateEnumerableConversionCoreCode(name, type, depth);
+
+            //Nothing is converted (value is passed by reference), so a null value is already copied as null
+            if (code == name) return code;
+
+            //A null collection is copied as null instead of throwing when it is enumerated
+            return $"({name} == null ? null : {code})";
+        }
+
+        private string GenerateEnumerableConversionCoreCode(string name, ITypeSymbol type, int depth)
+        {
             var arguments = type.GetIDictionaryTypeArguments() ?? type.GetIEnumerableTypeArguments();
             if (arguments == null) return name;
             var argumentName = new string('x', depth);

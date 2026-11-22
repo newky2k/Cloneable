@@ -14,7 +14,7 @@
 		<PackageProjectUrl>https://github.com/newky2k/Cloneable</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>DSIcon.png</PackageIcon>
-		<PackageReleaseNotes>Verified with .NET 10.0 and .NET 11.0</PackageReleaseNotes>
+		<PackageReleaseNotes>Verified with .NET 10.0 and .NET 11.0. Null collection properties are now cloned as null instead of throwing.</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryType>git</RepositoryType>
 		<IsPackable>true</IsPackable>
