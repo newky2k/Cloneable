@@ -309,5 +309,50 @@ namespace Clonable.Test
             deepClone.CloneSafe();
         }
 
+        [Fact]
+        public void NullCollectionsAreClonedAsNull()
+        {
+            var obj = new NullCollectionClone() { A = "test" };
+
+            var fast = obj.Clone();
+            var safe = obj.CloneSafe();
+
+            foreach (var clone in new[] { fast, safe })
+            {
+                clone.A.Should().Be("test");
+                clone.Ints.Should().BeNull();
+                clone.Simples.Should().BeNull();
+                clone.Nested.Should().BeNull();
+                clone.Dict.Should().BeNull();
+                clone.Arr.Should().BeNull();
+                clone.Enumerable.Should().BeNull();
+            }
+        }
+
+        [Fact]
+        public void NonNullCollectionsAreStillDeepCloned()
+        {
+            var simple = new SimpleClone() { A = "x", B = 1 };
+            var obj = new NullCollectionClone()
+            {
+                Ints = new List<int>() { 1, 2 },
+                Simples = new List<SimpleClone>() { simple },
+                Nested = new List<List<SimpleClone>>() { new List<SimpleClone>() { simple }, null },
+                Dict = new Dictionary<int, SimpleClone>() { { 1, simple } },
+                Arr = new[] { simple },
+            };
+
+            foreach (var clone in new[] { obj.Clone(), obj.CloneSafe() })
+            {
+                clone.Ints.Should().Equal(1, 2).And.NotBeSameAs(obj.Ints);
+                clone.Simples.Should().ContainSingle().Which.Should().NotBeSameAs(simple);
+                clone.Nested.Should().HaveCount(2);
+                clone.Nested[0].Should().ContainSingle().Which.Should().NotBeSameAs(simple);
+                clone.Nested[1].Should().BeNull();
+                clone.Dict[1].Should().NotBeSameAs(simple);
+                clone.Arr.Should().ContainSingle().Which.Should().NotBeSameAs(simple);
+            }
+        }
+
     }
 }

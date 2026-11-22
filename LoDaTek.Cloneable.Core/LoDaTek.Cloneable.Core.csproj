@@ -7,17 +7,33 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<RepositoryUrl>https://github.com/newky2k/Cloneable</RepositoryUrl>
-		<Version>2.0.0</Version>
 		<PackageProjectUrl>https://github.com/newky2k/Cloneable</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageLicenceUrl>https://github.com/newky2k/Cloneable/blob/master/LICENCE</PackageLicenceUrl>
+		<PackageIcon>DSIcon.png</PackageIcon>
+		<PackageReleaseNotes>Verified with .NET 10.0 and .NET 11.0</PackageReleaseNotes>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryType>git</RepositoryType>
 		<IsPackable>true</IsPackable>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
+	<PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+		<!-- sourcelink: publish the repository URL, embed untracked sources, keep the PDB in the package -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(TF_BUILD)' == 'true' OR '$(GITHUB_ACTIONS)' == 'true' ">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<ItemGroup Condition=" '$(Configuration)'=='Release' ">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100" PrivateAssets="All" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<None Include="../README.md" Pack="true" PackagePath="\" />
+		<None Include="../DSIcon.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	
 </Project>

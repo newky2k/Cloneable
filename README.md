@@ -22,7 +22,7 @@ Either commands, from Package Manager Console or .NET Core CLI, will download an
 
 You can add clone method to a class by making it partial and adding the attribute `Cloneable` on top of it. An example is provided in Cloneable.Sample project.
 
-Source generators are introduced in dotnet 5.0. So make sure to have Visual Studio 16.8 or dotnet 5.0 sdk installed.
+The generator is an incremental source generator, so you need Visual Studio 2022 17.3 or the .NET 6.0.4xx SDK or later. The generator is verified with the .NET 10 and .NET 11 SDKs.
 
 Here is a simple example:
 
