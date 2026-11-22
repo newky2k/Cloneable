@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `LoDaTek.Cloneable` — a C# source generator that writes a `Clone()` method for classes marked `[Cloneable]` (fork of Nickztar/Cloneable, itself a fork of mostmand/Cloneable). Two NuGet packages, a test project and a sample:
 
-- `Cloneable/` (`LoDaTek.Cloneable`) — the Roslyn generator (`CloneableGenerator`, `SyntaxReceiver`, `SymbolExtensions`). Packed as an analyzer (`analyzers/dotnet/cs`); it has no lib assemblies by design (`NU5128` is suppressed).
+- `Cloneable/` (`LoDaTek.Cloneable`) — the Roslyn generator (`CloneableGenerator`, `CloneCodeBuilder`, `SymbolExtensions`). Packed as an analyzer (`analyzers/dotnet/cs`); it has no lib assemblies by design (`NU5128` is suppressed).
 - `LoDaTek.Cloneable.Core/` (`LoDaTek.Cloneable.Core`) — the attributes (`Cloneable`, `Clone`, `IgnoreClone`) that consumers reference.
 - `Clonable.Test/` — xunit tests (note the spelling of the folder), `net10.0;net11.0`.
 - `Cloneable.Sample/` — console sample, `net10.0;net11.0`.
@@ -20,7 +20,7 @@ dotnet test Clonable.Test/Clonable.Test.csproj -c Release
 ```
 
 - The generator and the Core library stay `netstandard2.0`: an analyzer must target `netstandard2.0` to load in every compiler, and the attributes work for every consumer from .NET Framework to .NET 11. The tests and sample build with the generator on .NET 10 and .NET 11 to prove it works with those compilers. Build with the .NET 10 and .NET 11 SDKs (`global.json` rolls forward to the latest major).
-- `Microsoft.CodeAnalysis.CSharp.Workspaces` is deliberately kept at 3.8.0 so the generator keeps loading in older compilers.
+- The generator is an incremental generator (`IIncrementalGenerator`, `ForAttributeWithMetadataName`) built on `Microsoft.CodeAnalysis.CSharp` 4.3.1, so consumers need Visual Studio 2022 17.3 or the .NET 6.0.4xx SDK or later. The pipeline passes plain strings (generated source) rather than symbols, so results cache between edits. Analyzer rules are enforced (`EnforceExtendedAnalyzerRules`): do not use `Environment`, files or the network in the generator. `CloneCodeBuilder` holds the code generation; `CloneableGenerator` is only the pipeline.
 - `GeneratePackageOnBuild=true` on both packages, so every build produces `.nupkg` files (with `README.md` and `DSIcon.png`). Release builds add SourceLink.
 - Null collection properties (lists, arrays, dictionaries, enumerables, including nested ones) are cloned as `null`: the generated code is wrapped in `(x == null ? null : ...)`. `NullCollectionClone` in `Clonable.Test` covers it. A null property whose type is itself `[Cloneable]` and not annotated nullable still throws `NullReferenceException` on purpose (`ThrowsOnNonNullable`).
 

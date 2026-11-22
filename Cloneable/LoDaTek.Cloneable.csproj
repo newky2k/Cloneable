@@ -9,12 +9,13 @@
 		<RepositoryUrl>https://github.com/newky2k/Cloneable</RepositoryUrl>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 		<IsRoslynComponent>true</IsRoslynComponent>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 		<!-- analyzer package: no lib/ref assemblies by design -->
 		<NoWarn>$(NoWarn);NU5128</NoWarn>
 		<PackageProjectUrl>https://github.com/newky2k/Cloneable</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>DSIcon.png</PackageIcon>
-		<PackageReleaseNotes>Verified with .NET 10.0 and .NET 11.0. Null collection properties are now cloned as null instead of throwing.</PackageReleaseNotes>
+		<PackageReleaseNotes>Verified with .NET 10.0 and .NET 11.0. Now an incremental source generator (requires Visual Studio 2022 17.3 or the .NET 6.0.4xx SDK or later). Null collection properties are now cloned as null instead of throwing.</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryType>git</RepositoryType>
 		<IsPackable>true</IsPackable>
@@ -27,8 +28,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.1" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
 	</ItemGroup>
 	<PropertyGroup Condition=" '$(Configuration)'=='Release' ">
 		<!-- sourcelink: publish the repository URL, embed untracked sources, keep the PDB in the package -->
