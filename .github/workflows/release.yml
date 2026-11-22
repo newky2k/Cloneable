@@ -1,5 +1,5 @@
 # Release: on every push to main, builds Release and pushes the LoDaTek.Cloneable and LoDaTek.Cloneable.Core packages to nuget.org
-# as 3.0.yyMM.<run number>, then tags the commit and creates a GitHub release with the package attached.
+# as 4.0.yyMM.<run number>, then tags the commit and creates a GitHub release with the package attached.
 # RELEASE_SUFFIX is empty for a stable version; set it to a suffix such as
 # '-prerelease' to publish a prerelease.
 # Signs in to nuget.org with Trusted Publishing (OIDC), so no API key is stored.
@@ -43,7 +43,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          version="3.0.$(date -u +%y%m).${{ github.run_number }}"
+          version="4.0.$(date -u +%y%m).${{ github.run_number }}"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "package=$version$RELEASE_SUFFIX" >> "$GITHUB_OUTPUT"
           echo "Version: $version$RELEASE_SUFFIX"
